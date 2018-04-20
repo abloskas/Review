@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Event Detail</title>
+    <style>
+        .wrapper{
+            width: 970px;
+            font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .event-info-table{
+            border: 1px solid rebeccapurple;
+            width: 200px;
+        }
+        .board{
+            vertical-align: top;
+            display: inline-block;
+            width: 350px;
+            overflow:auto;
+            height: 200px;
+            border: 1px solid black;
+        }
+        .main-board{
+            margin-left: 300px;
+            display: inline-block;
+        }
+        .comment {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h1><%=@event.name%></h1>
+        <a href="/events">Event Dashboard</a>
+        <a href="/users/logout">Logout!</a>
+        <div class="event-info">
+            <h3>Host: <%=@event.user.first_name%> <%=@event.user.last_name%></h3>
+            <p>Date: <%=@event.date%></p>
+            <p>Location: <%=@event.city%>, <%=@event.state%></p>
+            <p>People who are joining the event: <%=@event.attendents.count%></p>
+        </div>
+        <div class="event-info-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @event.attendents.each do |x|%>
+                    <tr>
+                        <td style="border-right: 1px solid black;"><%=x.first_name%> <%=x.last_name%></td>
+                        <td style="border-right: 1px solid black;"><%=x.city%></td>
+                        <td style="border-right: 1px solid black;"><%=x.state%></td>
+                </tr>
+                <%end%>
+                </tbody>
+            </table>
+            </div>
+            <div class="main-board">
+                <h3>Discussion about this event:</h3>
+                <div class="board">
+                    <% @event.comments.each do |y|%>
+                    <p><%= y.user.first_name%> says: <%= y.content %></p>
+                    <p>------------------------------------------------</p>
+                    <%end%>
+                </div>
+                <div class="comment">
+                    <form action="/comments/<%=@event.id%>/add" method="POST">
+                        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+                        <textarea name="content"></textarea>
+                        <input type="submit" value="Submit Comment">
+                    </form>
+                </div>
+            </div>
+     </div>   
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Events</title>
+    <style>
+        .wrapper{
+            width: 970px;
+            margin: 0 auto;
+            font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .welcome{
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            color:steelblue;
+        }
+        .home-events{
+            border: 1px solid lightcoral;
+        }
+        .away-events{
+            border: 1px solid rebeccapurple;
+        }
+        .top-table{
+            display:inline-block;
+        }
+        .bottom-table{
+            display:inline-block;
+            margin-left: 100px;
+        }
+        .create_event{
+            display: flex;
+            border: 1px solid green;
+            padding: 10px;
+            width: 200px;
+        }
+        .create_event input, .create_event p, .create_event select {
+            display: block;
+            margin-left: 20px;
+        }
+        .btn {
+            margin-top: 15px;
+            border: 2px solid black;
+            background-color: white;
+            color: black;
+            padding: 5px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .success {
+            border-color: #4CAF50;
+            color: green;
+        }
+        .success:hover {
+             background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="welcome">Welcome, <%=current_user.first_name%>!</h1>
+    <a href="/users/<%= current_user.id %>">Edit Profile</a>
+    <a href="/users/logout">Logout!</a>
+    <div class="wrapper">
+        <div class="top-table">
+            <h3>Here are some of the events in your state:</h3>
+            <table class="home-events">
+                <thead>
+                    <th style="border-bottom: 1px solid black;"></th>
+                    <th style="border-bottom: 1px solid black;">Date</th>
+                    <th style="border-bottom: 1px solid black;">Location</th>
+                    <th style="border-bottom: 1px solid black;">Host</th>
+                    <th style="border-bottom: 1px solid black;">Action/Status</th>
+                </thead>
+            
+                <% @home_events.each do |event|%>
+                <tr>
+                    <td style="border-right: 1px solid black;"><a href="/events/<%=event.id%>/show"><%= event.name %></a></td>
+                    <td style="border-right: 1px solid black;"><%= event.date %></td>
+                    <td style="border-right: 1px solid black;"><%= event.city %></td>
+                    <td style="border-right: 1px solid black;"><%= event.user.first_name %></td>
+                    <%if event.user.id == current_user.id %>
+                        <td><a href="/events/<%=event.id%>/edit">Edit |</a><a href="/events/<%=event.id%>/delete" data-method="delete">| Delete</a></td>
+                    <%else%>  
+                        <%unless event.attendents.exists?(current_user.id)%>
+                            <td><a href="/events/<%=event.id%>/join" data-method="patch">Join</a></td> 
+                        <%else%>     
+                        <td>Attending! <a href="/events/<%=event.id%>/join" data-method="delete">Cancel</a></td> 
+                        <%end%>
+                    <%end%>
+                </tr>
+                <%end%>
+            </table>
+        </div>
+        <div class="bottom-table">
+            <h3>Here are some events in other states:</h3>
+            <table class="away-events">
+                <thead>
+                    <th style="border-bottom: 1px solid black;">Name</th>
+                    <th style="border-bottom: 1px solid black;">Date</th>
+                    <th style="border-bottom: 1px solid black;">Location</th>
+                    <th style="border-bottom: 1px solid black;">Host</th>
+                    <th style="border-bottom: 1px solid black;">Action</th>
+                </thead>
+            
+                <% @away_events.each do |event|%>
+                <tr>
+                    <td style="border-right: 1px solid black;"><a href="/events/<%=event.id%>/show"><%= event.name %></a></td>
+                    <td style="border-right: 1px solid black;"><%= event.date %></td>
+                    <td style="border-right: 1px solid black;"><%= event.city %></td>
+                    <td style="border-right: 1px solid black;"><%= event.user.first_name %></td>
+                    <%if event.user.id == current_user.id %>
+                        <td><a href="/events/<%=event.id%>/edit">Edit |</a><a href="/events/<%=event.id%>/delete" data-method="delete">| Delete</a></td>
+                    <%else%>  
+                    <%unless event.attendents.exists?(current_user.id)%>
+                            <td><a href="/events/<%=event.id%>/join" data-method="patch">Join</a></td> 
+                        <%else%>     
+                            <td>Attending! |<a href="/events/<%=event.id%>/join" data-method="delete">|Cancel</a></td> 
+                    <%end%>
+                    <%end%>
+                </tr>
+                <%end%>
+            </table>
+        </div>
+            <div class="create_event">
+                <h3>Make Event</h3>
+                <form action="/events/create" method="POST">
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+                    <p>Name: </p><input type="text" name="name">
+                    <p>Date: </p><input type='date' name="date">
+                   <p>Location:</p><input type="text" name="city">
+                    <select name="state" id="state">
+                        <option value="AL">AL</option>
+                        <option value="AK">AK</option>
+                        <option value="AZ">AZ</option>
+                        <option value="AR">AR</option>
+                        <option value="CA">CA</option>
+                        <option value="CO">CO</option>
+                        <option value="CT">CT</option>
+                        <option value="DE">DE</option>
+                        <option value="DC">DC</option>
+                        <option value="FL">FL</option>
+                        <option value="GA">GA</option>
+                        <option value="HI">HI</option>
+                        <option value="ID">ID</option>
+                        <option value="IL">IL</option>
+                        <option value="IN">IN</option>
+                        <option value="IA">IA</option>
+                        <option value="KS">KS</option>
+                        <option value="KY">KY</option>
+                        <option value="LA">LA</option>
+                        <option value="ME">ME</option>
+                        <option value="MD">MD</option>
+                        <option value="MA">MA</option>
+                        <option value="MI">MI</option>
+                        <option value="MN">MN</option>
+                        <option value="MS">MS</option>
+                        <option value="MO">MO</option>
+                        <option value="MT">MO</option>
+                        <option value="NE">NE</option>
+                        <option value="NV">NV</option>
+                        <option value="NH">NH</option>
+                        <option value="NJ">NJ</option>
+                        <option value="NM">NM</option>
+                        <option value="NY">NY</option>
+                        <option value="NC">NC</option>
+                        <option value="ND">ND</option>
+                        <option value="OH">OH</option>
+                        <option value="OK">OK</option>
+                        <option value="OR">OR</option>
+                        <option value="PA">PA</option>
+                        <option value="RI">RI</option>
+                        <option value="SC">SC</option>
+                        <option value="SD">SD</option>
+                        <option value="TN">TN</option>
+                        <option value="TX">TX</option>
+                        <option value="UT">UT</option>
+                        <option value="VT">VT</option>
+                        <option value="VA">VA</option>
+                        <option value="WA">WA</option>
+                        <option value="WV">WW</option>
+                        <option value="WI">WI</option>
+                        <option value="WY">WY</option>
+                  </select>
+                  <input class="btn success" type="submit" value="Add Event">
+                </form>
+            </div>
+    </div>
+</body>
+</html>
